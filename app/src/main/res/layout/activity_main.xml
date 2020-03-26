@@ -83,4 +83,25 @@
         app:layout_constraintStart_toEndOf="@+id/btnPauseMusic"
         app:layout_constraintTop_toBottomOf="@+id/btnPlayVideo" />
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="Move forward and back"
+        app:layout_constraintEnd_toStartOf="@+id/btnPlayMusic"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toEndOf="@+id/btnPauseMusic"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarVolume" />
+
+    <SeekBar
+        android:id="@+id/seekBarMove"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView3"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

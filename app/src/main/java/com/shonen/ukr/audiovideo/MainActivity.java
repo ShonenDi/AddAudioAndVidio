@@ -2,6 +2,7 @@ package com.shonen.ukr.audiovideo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -10,15 +11,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.SeekBar;
+import android.widget.Toast;
 import android.widget.VideoView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,SeekBar.OnSeekBarChangeListener,MediaPlayer.OnCompletionListener {
     /**
      * Parameters for UI components
      */
     private VideoView myVideoView;
     private Button playVideoBtn, btnPlayMusic, btnPauseMusic;
-    private SeekBar seekBarVolume;
+    private SeekBar seekBarVolume,seekBarMove;
     /*
      *  Parameters for multimedia components
      */
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaController mediaController;
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnPlayMusic = findViewById(R.id.btnPlayMusic);
         btnPauseMusic = findViewById(R.id.btnPauseMusic);
         seekBarVolume = findViewById(R.id.seekBarVolume);
+        seekBarMove = findViewById(R.id.seekBarMove);
 
 
         playVideoBtn.setOnClickListener(MainActivity.this);
@@ -51,6 +58,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int currentVolumOFUserDevice = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
         seekBarVolume.setMax(maxVolumeOfUserDevice);
+        seekBarVolume.setProgress(currentVolumOFUserDevice);
+
+        seekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,progress,0);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarMove.setOnSeekBarChangeListener(MainActivity.this);
+        seekBarMove.setMax(mediaPlayer.getDuration());
+
+        mediaPlayer.setOnCompletionListener(this);
+
     }
 
 
@@ -67,11 +100,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btnPlayMusic:
                 mediaPlayer.start();
+                timer = new Timer();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        seekBarMove.setProgress(mediaPlayer.getCurrentPosition());
+                    }
+                },0,1000);
                 break;
             case R.id.btnPauseMusic:
                 mediaPlayer.pause();
+                timer.cancel();
                 break;
         }
 
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if(fromUser){
+//            Toast.makeText(this,Integer.toString(progress),Toast.LENGTH_SHORT).show();
+            mediaPlayer.seekTo(progress);
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+            mediaPlayer.pause();
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        mediaPlayer.start();
+
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        timer.cancel();
     }
 }
